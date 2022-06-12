@@ -52,7 +52,27 @@ const mostBlogs = (blogs) => {
 };
 
 const mostLikes = (blogs) => {
-	const numOfLikes = _.countBy(blogs);
+	let nameSet = {};
+	const numOfAutor = _.countBy(blogs, "author");
+	const nameArray = _.keys(numOfAutor);
+	nameArray.forEach((name) => {
+		nameSet[name] = { likes: 0 };
+	});
+	blogs.forEach((blog) => {
+		nameSet[blog.author].likes += blog.likes;
+	});
+	// console.log(nameSet);
+	let mostLikes = { author: "Nobody", likes: 0 };
+	for (var name in nameSet) {
+		console.log(nameSet[name].likes);
+		if (nameSet[name].likes >= mostLikes.likes) {
+			// console.log(nameSet[name].likes);
+			mostLikes.author = name;
+			mostLikes.likes = nameSet[name].likes;
+		}
+	}
+	// console.log(mostLikes);
+	return mostLikes;
 };
 module.exports = {
 	reverse,
@@ -61,4 +81,5 @@ module.exports = {
 	totalLikes,
 	favoriteBlog,
 	mostBlogs,
+	mostLikes,
 };
