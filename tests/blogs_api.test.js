@@ -1,10 +1,11 @@
-const { initial, rest } = require("lodash");
 const mongoose = require("mongoose");
 const supertest = require("supertest");
 const app = require("../app");
 const api = supertest(app);
 const Blog = require("../models/blog");
 const Helper = require("./test_helper");
+const User = require("../models/user");
+const bcrypt = require("bcrypt");
 
 beforeEach(async () => {
 	await Blog.deleteMany({});
@@ -22,7 +23,7 @@ beforeEach(async () => {
 	}*/
 	await Blog.insertMany(Helper.initialBlogs);
 	console.log("done");
-});
+}, 100000);
 
 describe("all blogs", () => {
 	//返回所有blogs
@@ -98,6 +99,56 @@ describe("delet/update blog", () => {
 		await api.put(`/api/blogs/${id}`).expect(204);
 		const response = await api.get(`/api/blogs/${id}`);
 		expect(response.body.likes).toEqual(2);
+	});
+});
+
+describe("initially one user in db", () => {
+	beforeEach(async () => {
+		await User.deleteMany({});
+		console.log("user cleared");
+		const passwordHash = await bcrypt.hash("root", 10);
+		const user = new User({
+			username: "root",
+			name: "superTest",
+			passwordHash: passwordHash,
+		});
+		await user.save();
+		console.log("user done");
+	});
+
+	test("succeed add a new user", async () => {
+		const usersAtStart = await Helper.UserInDB();
+		console.log(usersAtStart);
+		const newUser = {
+			username: "transirizo",
+			name: "Transirizo Chan",
+			password: "transirizo",
+		};
+		console.log(usersAtStart);
+		await api.post("/api/users").send(newUser).expect(201);
+		const usersAtEnd = await Helper.UserInDB();
+		console.log(usersAtEnd);
+		expect(usersAtEnd).toHaveLength(usersAtStart.length + 1);
+		const usersname = usersAtEnd.map((user) => user.username);
+		expect(usersname).toContain(newUser.username);
+	});
+
+	test("fails add a exist user", async () => {
+		const newUser = {
+			username: "root",
+			name: "root",
+			password: "root",
+		};
+		await api.post("/api/users").send(newUser).expect(400);
+	});
+
+	test("fails add a invalid username or password user", async () => {
+		const newUser = {
+			username: "as",
+			name: "root",
+			password: "ass",
+		};
+		await api.post("/api/users").send(newUser).expect(400);
 	});
 });
 
