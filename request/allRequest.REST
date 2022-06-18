@@ -52,10 +52,16 @@ Content-Type: application/json
 ### add a blog with authorization
 POST http://localhost:3003/api/blogs
 Content-Type: application/json
-Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VybmFtZSI6InJvb3QiLCJpZCI6IjYyYWJmMTNjYTBmNzBkYTNkNzM1MDMyMiIsImlhdCI6MTY1NTQ3NjA2NiwiZXhwIjoxNjU1NDc5NjY2fQ.R-mZh--DFlb26FxlI8AvN2taZdCnXTrpp4g8DKfj80c
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VybmFtZSI6InJvb3QiLCJpZCI6IjYyYWJmMTNjYTBmNzBkYTNkNzM1MDMyMiIsImlhdCI6MTY1NTUzODEyOSwiZXhwIjoxNjU1NTQxNzI5fQ.KX53YA6vSK6-AO3lP3KEBaMECjtA2zQb3IxQFi2QESM
 
 {
-    "title": "check after updated post",
-	"author": "check",
+    "title": "213213",
+	"author": "cheasdfck",
 	"url": "wwwww"
 }
+
+
+### delete a blog with authorization
+DELETE  http://localhost:3003/api/blogs/62ad8add11029e9eb381cd2d
+Content-Type: application/json
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VybmFtZSI6InJvb3QiLCJpZCI6IjYyYWJmMTNjYTBmNzBkYTNkNzM1MDMyMiIsImlhdCI6MTY1NTUzODEyOSwiZXhwIjoxNjU1NTQxNzI5fQ.KX53YA6vSK6-AO3lP3KEBaMECjtA2zQb3IxQFi2QESM

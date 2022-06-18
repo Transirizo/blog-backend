@@ -2,8 +2,8 @@ const blogsRouter = require("express").Router();
 const User = require("../models/user");
 const Blog = require("../models/blog");
 const logger = require("../utils/logger");
-const jwt = require("jsonwebtoken");
-
+// const jwt = require("jsonwebtoken");
+const { userExtractor } = require("../utils/middleware");
 blogsRouter.get("/", async (request, response) => {
 	const blogs = await Blog.find({}).populate("user", { username: 1 });
 	response.json(blogs);
@@ -16,18 +16,21 @@ blogsRouter.get("/:id", async (req, res) => {
 	res.json(blog);
 });
 
-blogsRouter.post("/", async (request, response) => {
+blogsRouter.post("/", userExtractor, async (request, response) => {
 	const body = request.body;
-	const decodedToken = jwt.verify(request.res.locals.token, process.env.SECRET);
-	if (!decodedToken.id) {
-		response.status(401).json({
-			error: "token missing or invalid",
-		});
-	}
-	const user = await User.findById(decodedToken.id);
+
+	// const decodedToken = jwt.verify(request.token, process.env.SECRET);
+
+	// if (!decodedToken.id) {
+	// 	response.status(401).json({
+	// 		error: "token missing or invalid",
+	// 	});
+	// }
+	const user = request.user;
+
 	if (body.title === undefined || body.url === undefined) {
 		return response.status(400).json({
-			error: "content missing",
+			error: "title missing",
 		});
 	}
 
@@ -46,9 +49,27 @@ blogsRouter.post("/", async (request, response) => {
 	logger.info("have saved");
 });
 
-blogsRouter.delete("/:id", async (requset, response) => {
-	await Blog.findByIdAndRemove(requset.params.id);
+blogsRouter.delete("/:id", userExtractor, async (request, response) => {
+	// const decodedToken = jwt.verify(request.token, process.env.SECRET);
+	// if (!decodedToken.id) {
+	// 	return response.status(401).json({
+	// 		errror: "token invalid or missing",
+	// 	});
+	// }
+	const userid = request.user._id;
+
+	const blog = await Blog.findById(request.params.id);
+
+	if (blog.user.toString() !== userid.toString()) {
+		return response.status(401).json({
+			error: "Not blog owner",
+		});
+	}
+
+	await Blog.deleteOne(blog);
+
 	response.status(204).end();
+	logger.info("have deleted");
 });
 
 blogsRouter.put("/:id", async (req, res) => {
